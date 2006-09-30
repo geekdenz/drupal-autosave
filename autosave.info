@@ -1,0 +1,4 @@
+; $Id$
+name = Autosave
+description = Automatically saves a node after a period of time.
+
