@@ -3,7 +3,7 @@
 var changed = false;
 
 $(function() {
-  $('h1.title').after('<div id="autosave_status">status</div>');
+  $('form#node-form').before('<div id="autosave_status">status</div>');
   $('#autosave_status').css('visibility', 'hidden');
   
   $('input[@type=text]').keyup(function(e) {
