@@ -138,9 +138,9 @@ function autosave_save() {
   $node['taxonomy'] = $_REQUEST['taxonomy'];
   $node['name'] = $_REQUEST['name'];
   $node['date'] = $_REQUEST['date'];
-  $node['status'] = $_REQUEST['status'];
-  $node['promote'] = $_REQUEST['promote'];
-  $node['sticky'] = $_REQUEST['sticky'];
+  $node['status'] = 0;
+  $node['promote'] = 0;
+  $node['sticky'] = 0;
   $node['revision'] = $_REQUEST['revision'];
   
   
