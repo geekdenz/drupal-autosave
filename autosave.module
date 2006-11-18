@@ -27,7 +27,7 @@ function autosave_menu($may_cache) {
   if ($may_cache) {
     $items[] = array(
       'path' => 'admin/autosave', 
-      'title' => t('autosave save'),
+      'title' => t('Autosave save'),
       'callback' => 'autosave_save', 
       'access' => user_access('administer nodes'),
       'type' => MENU_CALLBACK,
@@ -35,7 +35,7 @@ function autosave_menu($may_cache) {
     
     $items[] = array(
       'path' => 'admin/content/types/autosave',
-      'title' => t('autosave'),
+      'title' => t('Autosave'),
       'callback' => 'drupal_get_form',
       'callback arguments' => array('autosave_admin_settings'),
       'access' => user_access('administer nodes'),
@@ -55,10 +55,10 @@ function autosave_form_alter($form_id, &$form) {
     drupal_add_js(drupal_get_path('module', 'autosave') . '/autosave.js');
     drupal_add_js(drupal_get_path('module', 'autosave') . '/form.js');
     
-    $action = url('admin/autosave');
+    $url = url('admin/autosave');
     $period = variable_get('autosave_period', 10000);
     
-    drupal_add_js('$(function() { setTimeout("autosave(' . "'" . $action . "', " . $period . ')", ' . $period . '); });', 'inline');
+    drupal_add_js('$(function() { setTimeout("autosave(' . "'" . $url . "', " . $period . ')", ' . $period . '); });', 'inline');
     
     if (arg(1) == 'add' && !$form['#post']) {
       unset($_SESSION['nid']);

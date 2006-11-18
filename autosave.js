@@ -34,14 +34,17 @@ $(function() {
 });
 
 
-function autosave(action, period) {
+function autosave(url, period) {
   if (changed == true) {
-    $('form[@id=node-form]').ajaxSubmit('#autosave_status', after, null, action);
+    var options = {
+      target: '#autosave_status',
+      url: url,
+      after: function() {
+        $('#autosave_status').css('visibility', 'visible');
+        changed = false;
+      }
+    };
+    $('form[@id=node-form]').ajaxSubmit(options);
   }
-  setTimeout('autosave("' + action + '", ' + period + ')', period);
-}
-
-function after() {
-  $('#autosave_status').css('visibility', 'visible');
-  changed = false;
+  setTimeout('autosave("' + url + '", ' + period + ')', period);
 }
