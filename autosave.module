@@ -12,7 +12,7 @@
 function autosave_help($section) {
   switch ($section) {
     case 'admin/help#autosave':
-      $output = '<p>'. t('The autosave module automatically save a node during adding or editing after a span of time.') .'</p>';
+      $output = '<p>'. t('The autosave module automatically saves a form after a period of time.') .'</p>';
       return $output;
   }
 }
@@ -29,20 +29,19 @@ function autosave_menu($may_cache) {
       'path' => 'admin/autosave', 
       'title' => t('Autosave save'),
       'callback' => 'autosave_save', 
-      'access' => user_access('administer nodes'),
+      'access' => TRUE,
       'type' => MENU_CALLBACK,
     );
     
     $items[] = array(
-      'path' => 'admin/content/types/autosave',
+      'path' => 'admin/settings/autosave',
       'title' => t('Autosave'),
+      'description' => t('Configure autosave settings.'),
       'callback' => 'drupal_get_form',
       'callback arguments' => array('autosave_admin_settings'),
       'access' => user_access('administer nodes'),
-      'type' => MENU_LOCAL_TASK,
     );
   }
-
   return $items;
 }
 
@@ -50,51 +49,57 @@ function autosave_menu($may_cache) {
  * Implementation of hook_form_alter().
  */
 function autosave_form_alter($form_id, &$form) {
-  $content_types = array_filter(variable_get('autosave_content_types', array()));
-  if (isset($form['type']) && in_array($form['type']['#value'], $content_types) && $form['type']['#value'] .'_node_form' == $form_id) {
-    drupal_add_js(drupal_get_path('module', 'autosave') . '/autosave.js');
-    drupal_add_js(drupal_get_path('module', 'autosave') . '/form.js');
-    
-    $url = url('admin/autosave');
-    $period = variable_get('autosave_period', 10000);
-    
-    drupal_add_js('$(function() { setTimeout("autosave(' . "'" . $url . "', " . $period . ')", ' . $period . '); });', 'inline');
-    
-    if (arg(1) == 'add' && !$form['#post']) {
-      unset($_SESSION['nid']);
-    }
-    
-    $form['nid'] = array(
-      '#type' => 'hidden',
-      '#value' => $form['#node']->nid,
-    );
-    $form['vid'] = array(
-      '#type' => 'hidden',
-      '#value' => $form['#node']->vid,
-    );
-    $form['type'] = array(
-      '#type' => 'hidden',
-      '#value' => $form['#node']->type,
-    );
+ 
+  // TODO: Allow user to configure which forms can be autosaved.
+  if (end(explode('/', $_GET['q'])) == 'configure-autosave') {
+    drupal_add_js('var configure_autosave = true;', 'inline');
+    drupal_add_js(drupal_get_path('module', 'autosave') .'/autosave.js');
+    drupal_add_js(drupal_get_path('module', 'autosave') .'/jquery.field.js');
+    drupal_add_css(drupal_get_path('module', 'autosave') .'/autosave.css');
   }
-}
-
-/**
- * Implementation of hook_nodeapi().
- */
-function autosave_nodeapi(&$node, $op, $teaser = NULL, $page = NULL) {
-  switch ($op) {
-    case 'submit':
-      if ($node->op == 'Submit' && $_SESSION['nid']) {
-        $node->nid = $_SESSION['nid'];
-        $node->vid = $_SESSION['vid'];
-        $node->log = '';
-        $node->revision = 1;
-                
-        unset($_SESSION['nid']);
-        unset($_SESSION['vid']);
-        break;
+  
+  if ($form_id == 'node_type_form') {
+    $form['workflow']['autosave'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Enable Autosave to add/edit forms for this node type'),
+      '#default_value' => variable_get('autosave_'. $form['#node_type']->type, 0),
+      '#description' => t('Check this box to enable Autosave for this node type.')
+    );
+  }  
+   
+  if (isset($form['type']['#value']) && ($form_id == $form['type']['#value'] .'_node_form')) {
+    
+    // check if this content_type has the autosave function enabled and make sure it's a node edit or add form
+    if ( (variable_get('autosave_'. $form['type']['#value'], 0) == 1) && 
+          ( (arg(0) == 'node' && is_numeric(arg(1)) && arg(2) == 'edit') || (arg(0) == 'node' && arg(1) == 'add') )
+        ) {
+      global $user;
+      $path = $_GET['q'];
+      drupal_add_js(drupal_get_path('module', 'autosave') .'/autosave.js');
+      drupal_add_js(drupal_get_path('module', 'autosave') .'/jquery.field.js');
+      drupal_add_css(drupal_get_path('module', 'autosave') .'/autosave.css');
+      
+      if ($form['type']['#value'] .'_node_form' == $form_id) {
+        $settings['form_id'] = 'node_form';
       }
+      else {
+        $settings['form_id'] = $form_id;
+      }
+      $settings['period'] = variable_get('autosave_period', 10);
+      $settings['autosave_url'] = url('admin/autosave');
+      $settings['q'] = $path;
+      
+      // If an autosaved version of the form exists, make it available via javascript.
+      if ($autosaved_form = autosave_get_autosaved_form($form_id, $path, $user->uid)) {
+        $autosaved_form_id = ($form['type']['#value'] .'_node_form' == $form_id) ? 'node_form' : $form_id;
+        $settings['autosaved_form'][] = array(
+          'form_id' => $autosaved_form_id,
+          'serialized' => unserialize($autosaved_form['serialized']),
+          'saved_date' => format_date($autosaved_form['timestamp'], 'medium'),
+        );
+      }
+      drupal_add_js($settings, 'setting');
+    }
   }
 }
 
@@ -104,23 +109,18 @@ function autosave_nodeapi(&$node, $op, $teaser = NULL, $page = NULL) {
 function autosave_admin_settings() {
   $types = node_get_types();
   
-  foreach ($types as $type) {
-    $options[$type->type] = $type->name;
-  }
+  $path = drupal_get_path('module', 'autosave');
   
-  $form['autosave_content_types'] = array(
-    '#type' => 'checkboxes',
-    '#title' => t('Enable autosave for the following content types'),
-    '#options' => $options,
-    '#default_value' => variable_get('autosave_content_types', 0),
-  );
+  if (!file_exists($path .'/jquery.field.js')) {
+    drupal_set_message(t('Unable to find the jQuery Field Plugin in !path. Please <a href="http://plugins.jquery.com/files/jquery.field.js_4.txt">download jquery.field.js</a> and place it into !path.', array('!path' => $path)), 'error');
+  }
   
   $form['autosave_period'] = array(
     '#type' => 'textfield',
-    '#title' => t('Autosave after this amount milliseconds has passed'),
-    '#default_value' => variable_get('autosave_period', 10000),
+    '#title' => t('Autosave after this amount seconds has passed'),
+    '#default_value' => variable_get('autosave_period', 10),
   );
-  
+
   return system_settings_form($form);
 }
 
@@ -128,50 +128,68 @@ function autosave_admin_settings() {
  * Menu callback; autosaves the node.
  */
 function autosave_save() {
-  $node = array();
+  global $user;  
+  $path = $_POST['q'];
+  $form_id = $_POST['form_id'];
+  // Not all variables need to be serialized.
+  //unset($_POST['form_token'], $_POST['q']);    
+  unset($_POST['q']);  
+  $serialized = serialize($_POST);
   
-  $node['title'] = $_REQUEST['title'];
-  $node['body'] = $_REQUEST['body'];
-  $node['type'] = $_REQUEST['type'];
-  $node['format'] = $_REQUEST['format'];
-  $node['comment'] = $_REQUEST['comment'];
-  $node['taxonomy'] = $_REQUEST['taxonomy'];
-  $node['name'] = $_REQUEST['name'];
-  $node['date'] = $_REQUEST['date'];
-  $node['status'] = 0;
-  $node['promote'] = 0;
-  $node['sticky'] = 0;
-  $node['revision'] = $_REQUEST['revision'];
-  
-  
-  if ($_REQUEST['nid']) {
-    // Autosaving while editing an existing node
-    $_SESSION['nid'] = $_REQUEST['nid'];
-    $_SESSION['vid'] = $_REQUEST['vid'];
-    $node['nid'] = $_SESSION['nid'];
-    $node['vid'] = $_SESSION['vid'];
-    $node['revision'] = 1;
+  // check if node has just been saved - if it has then it's because AS ajax fired off as user was submitting
+  // if it had just been submitted - no need to AS now
+  //    - easy to figure out if we are submitting an edit to existing node
+  //    - little harder if we have just added a node
+  $path_args = explode("/", $path);                
+  // update case
+  if (is_numeric($path_args[1])) $submitted = node_load($path_args[1]);       
+  // add case  
+  else $submitted->changed = db_result(db_query("SELECT created FROM {node} WHERE uid = %d and type = '%s' ORDER BY created DESC LIMIT 1", $user->uid, str_replace("-","_",$path_args[2])));                                 
+  if (!$submitted || (time() - $submitted->changed) > 10) {
+    // Currently, each user can have only one autosave form at a particular path.
+    db_query("DELETE FROM {autosaved_forms} WHERE form_id = '%s' AND path = '%s' AND uid = %d", $form_id, $path, $user->uid);
+    db_query("INSERT INTO {autosaved_forms} (form_id, path, uid, timestamp, serialized) VALUES ('%s', '%s', %d, %d, '%s')",
+      $form_id, $path, $user->uid, time(), $serialized);
   }
-  else {
-    if ($_SESSION['nid']) {
-      // Autosaving a node that was autosaved previously
-      $node['nid'] = $_SESSION['nid'];
-      $node['vid'] = $_SESSION['vid'];
-    }
-    else {
-      // Autosaving a new node, session variable are set for next autosave
-      $_SESSION['nid'] = db_result(db_query("SELECT id FROM {sequences} WHERE name = '%s'", 'node_nid')) + 1;
-      $_SESSION['vid'] = db_result(db_query("SELECT id FROM {sequences} WHERE name = '%s'", 'node_revisions_vid')) + 1;
-    }
+    
+  exit();
+}
+
+/**
+ * Get the autosaved form at a particular path for a user.
+ *
+ * @param string $form_id
+ *   The form_id of the form.
+ * @param string $path 
+ *   The the internal Drupal path where the form is located
+ * @param string $uid 
+ *   Drupal UID of the user
+ * @return
+ *   An array containing the serialized values of the autosaved form and the timestamp of when the form was autosaved.
+ */
+function autosave_get_autosaved_form($form_id, $path, $uid) {
+  $result = db_query("SELECT form_id, serialized, timestamp FROM {autosaved_forms} WHERE form_id = '%s' AND path = '%s' AND uid = %d", $form_id, $path, $uid);
+  
+  while ($data = db_fetch_object($result)) {
+    $form['serialized'] = $data->serialized;
+    $form['timestamp'] = $data->timestamp;
   }
-  
-  $log = 'Autosaved at ' . date('g:i:s a');
-  $node['log'] = $log;
-  
-  $node = (object)$node;
-  $node = node_submit($node);
-  node_save($node);
-  db_query("UPDATE {node} SET changed = %d WHERE nid = %d", 0, $node->nid);
-  
-  echo '<em>' . $log . '</em>';
+  return $form;
+}
+
+/**
+ * Implementation of hook_nodeapi().
+ * 
+ * Delete autosave table entry on successful submit (add or update) of node
+ *
+ */
+function autosave_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL) {
+  if ($op == 'submit') {
+      //global $user;
+      // we remove ALL edits for that page (not just the users) to avoid:
+      //  - user1 asaves but doesnt submit
+      //  - user2 edits same node and submits
+      //  - user1 comes back to edit -> user1 SHOULD lose edits since user2 has precedence
+      db_query("DELETE FROM {autosaved_forms} WHERE form_id = '%s' AND path = '%s'", $node->form_id, $_GET['q']);
+  }
 }

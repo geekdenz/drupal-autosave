@@ -1,1 +1,35 @@
-$Id$DESCRIPTION===========The Autosave module automatically saves a node after a period of time. The content type to enable autosave as well as the period of time before an autosave can be set by the user.Autosaved nodes are saved as revisions; when adding a new node, a revision is created upon submitting the form, while when editing an existing node, each autosave is a new revision.This module is designed to work with Drupal 5.0.DEPENDENCIES============Requires the jQuery Form plugin (with AJAX) which can be downloaded here: http://jquery.com/dev/svn/trunk/plugins/form/form.js?format=txtINSTALLATION============1. Place the "autosave" folder in your "modules" directory.2. Download the Form plugin (with AJAX) and place it in the autosave folder.2. Enable the Autosave module under Administer >> Site building >> Modules.3. Under Administer >> Content management >> Content types, click on the "Autosave" tab.4. Check the content types which you want to enable autosave.5. Enter the period of time before each autosave (in milliseconds).AUTHOR======Edmund Kwok (edkwh87 [at] gmail.com)
+DESCRIPTION
+===========
+The Autosave module automatically saves a node after a period of time. Content types that can be autosaved as well as the period of time a node is autosaved, is configurable.
+
+Autosaved nodes are are saved as a snap shot of the form.
+
+NOTE: this version of autosave only works for single form (of selected node type) on a page.
+
+This module is designed to work with Drupal 5.x.
+
+DEPENDENCIES
+============
+Inlcudes the jQuery Form Plugin which was downloaded from here: http://dev.jquery.com/browser/trunk/plugins/form/jquery.form.js?format=txt
+
+INSTALLATION
+============
+1. Place the "autosave" folder in your "modules" directory (i.e. modules/autosave).
+2. Enable the Autosave module under Administer >> Site building >> Modules.
+3. Under config for a node type select it to use Autosave.
+5. Under Admin -> Site Config -> Autosave enter the period of time before each autosave (in milliseconds).
+
+AUTHOR
+======
+Edmund Kwok (edmund.kwok [at] insyghtful.com)
+
+CHANGE LOG
+==========
+Major fixes/modifications done by Peter Lindstrom sponsored by LifeWire.com (a NY Times Company)
+
+- fix issues with operation in IE7
+- provide support for TinyMCE
+- clean up autosave table after successful submit of node
+- fix autosave validate bug on submit
+- add support to enable autosave for specific node types
+- fix issue of wrong form_id when VIEW->IGNORE

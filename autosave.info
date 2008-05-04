@@ -2,3 +2,13 @@
 name = Autosave
 description = Automatically saves a node after a period of time.
 
+
+; Information added by drupal.org packaging script on 2006-12-03
+project = "autosave"
+
+
+; Information added by drupal.org packaging script on 2008-01-04
+version = "5.x-1.x-dev"
+project = "autosave"
+datestamp = "1199404855"
+
