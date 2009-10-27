@@ -1,46 +1,64 @@
 <?php
+// $Id$
+
+/**
+ * Implementation of hook_enable().
+ */
+function autosave_enable() {
+  drupal_set_message(t('Autosave module successfully installed. Please review the <a href="@settings">configuration settings</a>.', array('@settings' => url('admin/settings/autosave'))));
+}
 
 /**
  * Implementation of hook_install().
  */
 function autosave_install() {
-  switch ($GLOBALS['db_type']) {
-    case 'mysql':
-    case 'mysqli':
-      db_query("CREATE TABLE {autosaved_forms} (
-        form_id varchar(64) NOT NULL default '',
-        path varchar(255) NOT NULL default '',
-        uid int(10) NOT NULL default '0',
-        timestamp int(11) NOT NULL default '0',
-        serialized text NOT NULL,
-        PRIMARY KEY (form_id, path, uid)
-      ) /*!40100 DEFAULT CHARACTER SET UTF8 */ ");
-      break;
-    case 'pgsql':
-      db_query("CREATE TABLE {autosaved_forms} (
-        form_id varchar(64) NOT NULL default '',
-        path varchar(255) NOT NULL default '',
-        uid int(10) NOT NULL default '0',
-        timestamp int(11) NOT NULL default '0',
-        serialized text NOT NULL default '',
-        PRIMARY KEY (form_id, path, uid),
-      )");
-      break;
-  }
-
-  drupal_set_message(t('The autosave_forms table for the Autosave module have been created.'));
+  drupal_install_schema('autosave');
 }
 
 /**
  * Implementation of hook_uninstall().
  */
 function autosave_uninstall() {
-  $query = db_query('DROP TABLE {autosaved_forms}');
-  
-  if ($query1) {
-    drupal_set_message('The autosave module was uninstalled successfully.');
-  }
-  else {
-    drupal_set_message('There was an error removing the autosave database tables.', 'error');
-  }
+  drupal_uninstall_schema('autosave');
+}
+
+/**
+ * Implementation of hook_schema()
+ */
+function autosave_schema() {
+  return array(
+    'autosaved_forms' => array(
+      'description' => t("Table to save forms in the database"),
+      'fields' => array(
+        'form_id' => array(
+          'type'        => 'varchar',
+          'length'      => 64,
+          'not null'    => TRUE,
+        ),
+        'path' => array(
+          'type'        => 'varchar',
+          'length'      => 255,
+          'not null'    => TRUE,
+        ),
+        'uid' => array(
+          'type'        => 'int',
+          'length'      => 11,
+          'not null'    => TRUE,
+          'default'     => 0,
+        ),
+        'timestamp' => array(
+          'type'        => 'int',
+          'length'      => 11,
+          'not null'    => TRUE,
+          'default'     => 0,
+        ),
+        'serialized' => array(
+          'type'        => 'text',
+          'not null'    => TRUE,
+          'size'        => 'big',
+        ),
+      ),
+      'primary key' => array('form_id', 'path', 'uid'),
+    ),
+  );
 }

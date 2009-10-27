@@ -1,16 +1,18 @@
 DESCRIPTION
 ===========
-The Autosave module automatically saves a node after a period of time. Content types that can be autosaved as well as the period of time a node is autosaved, is configurable.
+The Autosave module automatically saves a node after a period of time. Content types that can be autosaved as well as the 
+period of time a node is autosaved, is configurable.
 
 Autosaved nodes are are saved as a snap shot of the form.
 
 NOTE: this version of autosave only works for single form (of selected node type) on a page.
 
-This module is designed to work with Drupal 5.x.
 
 DEPENDENCIES
 ============
-Inlcudes the jQuery Form Plugin which was downloaded from here: http://dev.jquery.com/browser/trunk/plugins/form/jquery.form.js?format=txt
+Includes the jQuery Form Plugin which was downloaded from here: http://dev.jquery.com/browser/trunk/plugins/form/jquery.form.js?format=txt
+
+NOTE: the plugin has been modified to work with Drupal field names
 
 INSTALLATION
 ============
@@ -21,15 +23,12 @@ INSTALLATION
 
 AUTHOR
 ======
-Edmund Kwok (edmund.kwok [at] insyghtful.com)
+original concept by Edmund Kwok (edmund.kwok [at] insyghtful.com)
+Drupal 6 version and current maintainer: Peter Lindstrom sponsored by About.com
 
 CHANGE LOG
 ==========
-Major fixes/modifications done by Peter Lindstrom sponsored by LifeWire.com (a NY Times Company)
-
-- fix issues with operation in IE7
-- provide support for TinyMCE
-- clean up autosave table after successful submit of node
-- fix autosave validate bug on submit
-- add support to enable autosave for specific node types
-- fix issue of wrong form_id when VIEW->IGNORE
+- 6.x-2.0 version is a complete re-write to remove dependencies on TinyMCE.
+- this version is now tied to the WYSIWYG module and currently is known to work with FCK, CK and TinyMCE 3.0 editors but requires
+the 6.x-2.x-dev version of WYSIWYG with this patch: http://drupal.org/node/614146#comment-2193764; this patch should be commited soon and will
+eventually be expanded to include other editors.

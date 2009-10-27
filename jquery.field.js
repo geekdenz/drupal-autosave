@@ -239,8 +239,7 @@
 
 					case "text":
 						this.value = v.join(defaults.delimiter);
-            if (this.type == "textarea" && (typeof tinyMCE == 'object')) tinyMCE.updateContent(this.id);
- 				break;
+        break;
 				}
 
 			}
