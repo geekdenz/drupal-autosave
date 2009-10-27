@@ -1,15 +1,9 @@
 ; $Id$
 name = Autosave
-description = Automatically saves a node after a period of time.
+description = Saves node edits in the background in case browser dies while editing.
 
-; Information added by drupal.org packaging script on 2008-01-04
-version = "6.x"
+package = Other
 project = autosave
+dependencies[] = wysiwyg
+
 core = 6.x
-
-; Information added by drupal.org packaging script on 2008-09-12
-version = "6.x-1.1"
-core = "6.x"
-project = "autosave"
-datestamp = "1221227102"
-
