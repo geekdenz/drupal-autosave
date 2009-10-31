@@ -67,7 +67,7 @@ Drupal.saveForm = function() {
   var serialized = $('#node-form').formHash();
   serialized['q'] =  Drupal.settings.autosave.q;
   $.ajax({
-    url: Drupal.settings.basePath + "autosave/handler",
+    url: Drupal.settings.autosave.url,
     type: "POST",
     dataType: "xml/html/script/json",
     data: serialized,

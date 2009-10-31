@@ -86,6 +86,7 @@ function autosave_form_alter(&$form, &$form_state, $form_id) {
       drupal_add_js(AUTOSAVE_PATH .'/jquery.field.js');
       drupal_add_css(AUTOSAVE_PATH .'/autosave.css');
 
+      $settings['autosave']['url'] = url('autosave/handler');
       $settings['autosave']['period'] = variable_get('autosave_period', 10);
       $settings['autosave']['q'] = $path;
       
