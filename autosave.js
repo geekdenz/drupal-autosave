@@ -60,14 +60,16 @@ if (Drupal.jsEnabled) {
 Drupal.saveForm = function() {
   // need to loop through any WYSIWYG editor fields and update the real (hidden) text fields before saving
   for (var instance in Drupal.wysiwyg.instances) {
-   var content = Drupal.wysiwyg.instances[instance].getContent();
-    $('#' + instance).val(content);
+    if (Drupal.wysiwyg.instances[instance].editor != 'none') {
+      var content = Drupal.wysiwyg.instances[instance].getContent();
+      $('#' + instance).val(content);
+    }
   }
   
   var serialized = $('#node-form').formHash();
   serialized['q'] =  Drupal.settings.autosave.q;
   $.ajax({
-    url: Drupal.settings.autosave.url,
+    url: Drupal.settings.basePath + "autosave/handler",
     type: "POST",
     dataType: "xml/html/script/json",
     data: serialized,
