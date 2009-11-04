@@ -15,9 +15,11 @@ if (Drupal.jsEnabled) {
         if ($(this).html() == 'View') {
           $('#' + autosaved_form_id).formHash(autosaved.serialized);
  
-          // need to loop through any WYSIWYG editor fields and update the visible iframe fields with hidden field content
-          for (var instance in Drupal.wysiwyg.instances) {
-            Drupal.wysiwyg.instances[instance].setContent($('#' + instance).val());
+          if (Drupal.settings.autosave.wysiwyg) { 
+            // need to loop through any WYSIWYG editor fields and update the visible iframe fields with hidden field content
+            for (var instance in Drupal.wysiwyg.instances) {
+              Drupal.wysiwyg.instances[instance].setContent($('#' + instance).val());
+            }
           }
           $('#' + autosaved_form_id).focus();
           $(this).html('Reset');
@@ -58,11 +60,13 @@ if (Drupal.jsEnabled) {
 } 
 
 Drupal.saveForm = function() {
-  // need to loop through any WYSIWYG editor fields and update the real (hidden) text fields before saving
-  for (var instance in Drupal.wysiwyg.instances) {
-    if (Drupal.wysiwyg.instances[instance].editor != 'none') {
-      var content = Drupal.wysiwyg.instances[instance].getContent();
-      $('#' + instance).val(content);
+  if (Drupal.settings.autosave.wysiwyg) {
+    // need to loop through any WYSIWYG editor fields and update the real (hidden) text fields before saving
+    for (var instance in Drupal.wysiwyg.instances) {
+      if (Drupal.wysiwyg.instances[instance].editor != 'none') {
+        var content = Drupal.wysiwyg.instances[instance].getContent();
+        $('#' + instance).val(content);
+      }
     }
   }
   

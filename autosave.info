@@ -4,6 +4,11 @@ description = Saves node edits in the background in case browser dies while edit
 
 package = Other
 project = autosave
-dependencies[] = wysiwyg
 
 core = 6.x
+; Information added by drupal.org packaging script on 2009-11-02
+version = "6.x-2.2"
+core = "6.x"
+project = "autosave"
+datestamp = "1257182411"
+
