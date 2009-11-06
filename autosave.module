@@ -56,6 +56,16 @@ function autosave_admin_settings() {
     '#title' => t('Autosave after this amount seconds has passed'),
     '#default_value' => variable_get('autosave_period', 10),
   );
+  
+  $form['autosave_hidden'] = array(
+    '#prefix' =>  '<div class="form-item"><label for="edit-autosave-hidden">'. t('Stealth Mode') . '</label>',
+    '#type' => 'checkbox',
+    '#title' => t('Run in stealth mode'),
+    '#description' => t('If this check box is selected no popup will appear notifying user that the form has been autosaved.'),
+    '#default_value' => variable_get('autosave_hidden', 0),
+    '#suffix' => "</div>",
+  );
+  
   return system_settings_form($form);
 }
 
@@ -93,6 +103,7 @@ function autosave_form_alter(&$form, &$form_state, $form_id) {
       $settings['autosave']['url'] = url('autosave/handler');
       $settings['autosave']['period'] = variable_get('autosave_period', 10);
       $settings['autosave']['q'] = $path;
+      $settings['autosave']['hidden'] = variable_get('autosave_hidden', 0);
       
       // If an autosaved version of the form exists, make it available via javascript.
       if ($autosaved_form = autosave_get_autosaved_form($form_id, $path, $user->uid)) {

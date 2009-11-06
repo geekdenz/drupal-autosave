@@ -78,7 +78,7 @@ Drupal.saveForm = function() {
     dataType: "xml/html/script/json",
     data: serialized,
     complete: function(XMLHttpRequest, textStatus) {
-      Drupal.displaySaved();
+      if (!Drupal.settings.autosave.hidden) Drupal.displaySaved();
       Drupal.attachAutosave();
     }
   });
