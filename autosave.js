@@ -14,8 +14,7 @@ if (Drupal.jsEnabled) {
       $('#autosave-status #view a').click(function() {
         if ($(this).html() == 'View') {
           $('#' + autosaved_form_id).formHash(autosaved.serialized);
- 
-          if (Drupal.settings.autosave.wysiwyg) { 
+          if (Drupal.settings.autosave.wysiwyg && Drupal.wysiwyg) {
             // need to loop through any WYSIWYG editor fields and update the visible iframe fields with hidden field content
             for (var instance in Drupal.wysiwyg.instances) {
               Drupal.wysiwyg.instances[instance].setContent($('#' + instance).val());
@@ -60,7 +59,7 @@ if (Drupal.jsEnabled) {
 } 
 
 Drupal.saveForm = function() {
-  if (Drupal.settings.autosave.wysiwyg) {
+  if (Drupal.settings.autosave.wysiwyg && Drupal.wysiwyg) {
     // need to loop through any WYSIWYG editor fields and update the real (hidden) text fields before saving
     for (var instance in Drupal.wysiwyg.instances) {
       if (Drupal.wysiwyg.instances[instance].editor != 'none') {
