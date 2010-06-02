@@ -18,6 +18,10 @@
  * elements, etc.)
  *
  * Revision History
+ * 
+ * v0.7a-mod
+ *  - plindstrom: change all "@name" to just "name" to be compatible with jquery 1.3 (seems to still be compatible with jq 1.2 as well)
+ * 
  * v0.7-mod
  * - Modified slightly by Edmund Kwok to work with Drupal's autosave.module. Refer to $.formHash().
  *
@@ -72,16 +76,16 @@
 	 * NOTE: This *MAY* break the jQuery chain
 	 *
 	 * Examples:
-	 * $("input[@name='name']").fieldArray();
+	 * $("input[name='name']").fieldArray();
 	 * > Gets the current value of the name text element
 	 *
-	 * $("input[@name='name']").fieldArray(["Dan G. Switzer, II"]);
+	 * $("input[name='name']").fieldArray(["Dan G. Switzer, II"]);
 	 * > Sets the value of the name text element to "Dan G. Switzer, II"
 	 *
-	 * $("select[@name='state']").fieldArray();
+	 * $("select[name='state']").fieldArray();
 	 * > Gets the current value of the state text element
 	 *
-	 * $("select[@name='state']").setValue(["OH","NY","CA"]);
+	 * $("select[name='state']").setValue(["OH","NY","CA"]);
 	 * > Sets the selected value of the "state" select element to OH, NY and CA
 	 *
 	 */
@@ -113,10 +117,10 @@
 	 * NOTE: Breaks the jQuery chain, since it returns a string.
 	 *
 	 * Examples:
-	 * $("input[@name='name']").getValue();
+	 * $("input[name='name']").getValue();
 	 * > This would return the value of the name text element
 	 *
-	 * $("select[@name='state']").getValue();
+	 * $("select[name='state']").getValue();
 	 * > This would return the currently selected value of the "state" select element
 	 *
 	 */
@@ -181,10 +185,10 @@
 	 * NOTE: This does *NOT* break the jQuery chain
 	 *
 	 * Examples:
-	 * $("input[@name='name']").setValue("Dan G. Switzer, II");
+	 * $("input[name='name']").setValue("Dan G. Switzer, II");
 	 * > Sets the value of the name text element to "Dan G. Switzer, II"
 	 *
-	 * $("select[@name='state']").setValue("OH");
+	 * $("select[name='state']").setValue("OH");
 	 * > Sets the selected value of the "state" select element to "OH"
 	 *
 	 */
@@ -289,7 +293,7 @@
 					if( !n || stProcessed[n] ) continue;
 
 					// create a jquery object to the current named form elements
-					var jel = $(el.tagName.toLowerCase() + "[@name='"+n+"']", this);
+					var jel = $(el.tagName.toLowerCase() + "[name='"+n+"']", this);
 
 					// if we're getting the values, get them now
 					if( bGetHash ){
@@ -565,7 +569,7 @@
 		// this finds the position of the current element in the array
 		var findArrayPos = function (el){
 			var pos = -1;
-			$("input[@name='"+me[0].name+"']").each(
+			$("input[name='"+me[0].name+"']").each(
 				function (i){
 					if( this == el ){
 						pos = i;
@@ -601,7 +605,7 @@
 						iLow = iLastSelection-1;
 					}
 
-					$("input[@name='"+self.name+"']:gt("+iLow+"):lt("+iHigh+")").attr("checked", bSetChecked ? "checked" : "");
+					$("input[name='"+self.name+"']:gt("+iLow+"):lt("+iHigh+")").attr("checked", bSetChecked ? "checked" : "");
 				}
 
 				$(this)
