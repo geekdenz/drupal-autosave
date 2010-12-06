@@ -20,6 +20,14 @@ if (Drupal.jsEnabled) {
               Drupal.wysiwyg.instances[instance].setContent($('#' + instance).val());
             }
           }
+          
+          //CKEditor support
+          if (typeof(CKEDITOR) != 'undefined' ) {
+            for (var instance in CKEDITOR.instances) {
+              CKEDITOR.instances[instance].setData($('#' + instance).val());
+            }
+          }
+          
           $('#' + autosaved_form_id).focus();
           $(this).html('Reset');
           $('#autosave-status #keep').css('display', 'inline').css('visibility', 'visible');
@@ -28,6 +36,14 @@ if (Drupal.jsEnabled) {
         else if ($(this).html() == 'Reset') {
           form = document.getElementById(autosaved_form_id);
           form.reset();
+
+          //CKEditor support
+          if (typeof(CKEDITOR) != 'undefined' ) {
+            for (var instance in CKEDITOR.instances) {
+              CKEDITOR.instances[instance].setData('');
+            }
+          }
+          
           $('#autosave-status #keep').css('display', 'none').css('visibility', 'hidden');
           $(this).html('View');
         }    
@@ -37,6 +53,14 @@ if (Drupal.jsEnabled) {
         $('#autosave-status').fadeOut('slow');
         form = document.getElementById(autosaved_form_id);
         form.reset();
+
+        //CKEditor support
+        if (typeof(CKEDITOR) != 'undefined' ) {
+          for (var instance in CKEDITOR.instances) {
+            CKEDITOR.instances[instance].setData('');
+          }
+        }
+        
         $('#autosave-status #operations').css('display', 'none').css('visibility', 'hidden');
         Drupal.attachAutosave();
         return false;
@@ -66,6 +90,13 @@ Drupal.saveForm = function() {
         var content = Drupal.wysiwyg.instances[instance].getContent();
         $('#' + instance).val(content);
       }
+    }
+  }
+  
+  //CKEditor support
+  if (typeof(CKEDITOR) != 'undefined') {
+    for (var instance in CKEDITOR.instances) {
+      CKEDITOR.instances[instance].updateElement();
     }
   }
   
