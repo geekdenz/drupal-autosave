@@ -40,7 +40,7 @@ if (Drupal.jsEnabled) {
           //CKEditor support
           if (typeof(CKEDITOR) != 'undefined' ) {
             for (var instance in CKEDITOR.instances) {
-              CKEDITOR.instances[instance].setData('');
+              CKEDITOR.instances[instance].setData($('#' + instance).val());
             }
           }
           
@@ -57,7 +57,7 @@ if (Drupal.jsEnabled) {
         //CKEditor support
         if (typeof(CKEDITOR) != 'undefined' ) {
           for (var instance in CKEDITOR.instances) {
-            CKEDITOR.instances[instance].setData('');
+            CKEDITOR.instances[instance].setData($('#' + instance).val());
           }
         }
         
