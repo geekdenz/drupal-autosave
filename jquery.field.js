@@ -1,4 +1,3 @@
-// $Id$
 
 /*
  * jQuery Field Plug-in
