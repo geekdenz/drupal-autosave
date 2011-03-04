@@ -1,13 +1,11 @@
+; $Id: autosave.info,v 1.6 2009/11/04 06:23:09 ptalindstrom Exp $
 name = Autosave
 description = Saves node edits in the background in case browser dies while editing.
 
 package = Other
 project = autosave
 
-core = 6.x
-; Information added by drupal.org packaging script on 2009-11-02
-version = "6.x-2.2"
-core = "6.x"
-project = "autosave"
-datestamp = "1257182411"
+core = 7.x
 
+files[] = autosave.install
+files[] = autosave.module

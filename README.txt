@@ -1,3 +1,6 @@
+NOTE - start of D7 version - NOT YET FUNCTIONAL
+
+
 DESCRIPTION
 ===========
 The Autosave module automatically saves a node after a period of time. Content types that can be autosaved as well as the 
@@ -28,6 +31,7 @@ Drupal 6 version and current maintainer: Peter Lindstrom sponsored by About.com
 
 CHANGE LOG
 ==========
+- 7.x-1.x - working dev version for D7 [not yet functional]
 - 6.x-2.0 version is a complete re-write to remove dependencies on TinyMCE.
 - this version is now tied to the WYSIWYG module and currently is known to work with FCK, CK and TinyMCE 3.0 editors but requires
 the 6.x-2.x-dev version of WYSIWYG with this patch: http://drupal.org/node/614146#comment-2193764; this patch should be commited soon and will
