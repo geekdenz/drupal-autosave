@@ -22,9 +22,8 @@ function autosave_help($path, $arg) {
 }
 
 /**
- * Implements hook_menu().
-().
- */
+* Implements hook_menu().
+*/
 function autosave_menu() {
   $items['autosave/handler'] = array(
     'title'           => 'Autosave save',
@@ -106,7 +105,8 @@ function autosave_form_alter(&$form, &$form_state, $form_id) {
       else {
         $settings['autosave']['wysiwyg'] = 0;
       }
-
+      
+      $settings['autosave']['formid'] = $form_id;  
       $settings['autosave']['url'] = url('autosave/handler');
       $settings['autosave']['period'] = variable_get('autosave_period', 10);
       $settings['autosave']['q'] = $path;
