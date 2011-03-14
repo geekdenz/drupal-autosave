@@ -106,14 +106,16 @@ function autosave_form_alter(&$form, &$form_state, $form_id) {
         $settings['autosave']['wysiwyg'] = 0;
       }
       
-      $settings['autosave']['formid'] = $form_id;  
+      $formid = str_replace("_", "-", $form_id);  
+      
+      $settings['autosave']['formid'] = $formid;
       $settings['autosave']['url'] = url('autosave/handler');
       $settings['autosave']['period'] = variable_get('autosave_period', 10);
       $settings['autosave']['q'] = $path;
       $settings['autosave']['hidden'] = variable_get('autosave_hidden', 0);
 
       // If an autosaved version of the form exists, make it available via javascript.
-      if ($autosaved_form = autosave_get_autosaved_form($form_id, $path, $user->uid)) {
+      if ($autosaved_form = autosave_get_autosaved_form($formid, $path, $user->uid)) {
         //$autosaved_form_id = $form['type']['#value'] ? $form['type']['#value'] .'_node_form' : 'node_form';
         $settings['autosave'] = array_merge($settings['autosave'], array(
           'serialized' => unserialize($autosaved_form['serialized']),
@@ -137,7 +139,7 @@ function autosave_save() {
   // Not all variables need to be serialized.
   //    - for Drupal 6 version need to remove op and form_build_id
   unset($_POST['q'], $_POST['op'], $_POST['form_build_id']);
-  $serialized = serialize($_POST);
+  $serialized = serialize($_POST['serialized']);
 
   // check if node has just been saved - if it has then it's because AS ajax fired off as user was submitting
   // if it had just been submitted - no need to AS now

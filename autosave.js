@@ -11,7 +11,7 @@ Drupal.behaviors.autosave = {
     <span id="keep"><a href="#" title="' + Drupal.t("Keep Saved Form - Revert to Saved") + '">' + Drupal.t("Keep") + '</a></span></span></div>');
     
     autosaved = Drupal.settings.autosave;   
-    autosaved_form_id = autosaved.formid.replace(/_/g, "-");
+    autosaved_form_id = autosaved.formid;
     
     if (autosaved.serialized) {
       $('#autosave-status #keep').css('display', 'none').css('visibility', 'hidden');
@@ -66,7 +66,7 @@ Drupal.behaviors.autosave = {
         }
         
         $('#autosave-status #operations').css('display', 'none').css('visibility', 'hidden');
-        Drupal.behaviours.attachAutosave();
+        Drupal.behaviors.autosave.attachAutosave();
         return false;
       });
       $('#autosave-status #keep a').click(function() {
@@ -84,8 +84,7 @@ Drupal.behaviors.autosave = {
       Drupal.behaviors.autosave.attachAutosave();
     }
   },
-
-
+  
   saveForm: function() {
     autosaved = Drupal.settings.autosave;
     if (autosaved.wysiwyg && Drupal.wysiwyg) {
@@ -105,7 +104,7 @@ Drupal.behaviors.autosave = {
       }
     }
   
-    var serialized = $('#node-form').formHash();
+    var serialized = $('#' + autosaved.formid).formHash();
     $.ajax({
       //url: settings.basePath + "autosave/handler",   
       url: autosaved.url, 
