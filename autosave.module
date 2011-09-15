@@ -70,8 +70,7 @@ function autosave_admin_settings($form, &$form_state) {
 }
 
 /**
- * Implements hook_form_alter() for node_type_form
-().
+ * Implements hook_form_alter() for node_type_form().
  */
 function autosave_form_node_type_form_alter(&$form, $form_state) {
   $form['workflow']['autosave'] = array(
