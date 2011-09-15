@@ -24,6 +24,11 @@ Drupal.behaviors.autosave = {
       },
       save: function(e,o) {
         console.debug('jquery.autosave saving');
+        Drupal.behaviors.autosave.displayMessage(Drupal.t('Form autosaved.'));
+        $('#autosave-status #status').html('Form autosaved.');
+        $('#autosave-status #operations').css('display', 'none').css('visibility', 'hidden');
+        $('#autosave-status').slideDown();
+        setTimeout(function() {$('#autosave-status').fadeOut('slow');}, 3000);
       }
     });
 
@@ -150,17 +155,12 @@ Drupal.behaviors.autosave = {
     */
   },
 
-  displaySaved: function() {
-    /*
-    $('#autosave-status #status').html('Form autosaved.');
+  displayMessage: function(message, timeout) {
+    timeout = timeout || 3000;
+    $('#autosave-status #status').html(message);
     $('#autosave-status #operations').css('display', 'none').css('visibility', 'hidden');
     $('#autosave-status').slideDown();
-    setTimeout("Drupal.behaviors.autosave.fadeout();", 3000);
-    */
-  },
-
-  fadeout: function() {
-    //$('#autosave-status').fadeOut('slow');
+    setTimeout(function() { $('#autosave-status').fadeOut('slow'); }, timeout);
   }
 }
 
