@@ -1,17 +1,13 @@
-var autosaved_form;
-
 (function ($) {
+
+var showingRestoreCommand;
 
 Drupal.behaviors.autosave = {
 
   attach: function (context, settings) {
     var autosaveSettings;
 
-    $('body').append('<div id="autosave-status"><span id="status"></span><span id="operations"> \
-    <span id="view"><a href="#">' + Drupal.t("View") + '</a></span> \
-    <span id="ignore"><a href="#" title="' + Drupal.t("Ignore/Delete Saved Form") + '">' + Drupal.t("Ignore") + '</a></span> \
-    <span id="keep"><a href="#" title="' + Drupal.t("Keep Saved Form - Revert to Saved") + '">' + Drupal.t("Keep") + '</a></span></span></div>');
-
+    $('body').append('<div id="autosave-status"><span id="status"></span></div>');
 
     autosaveSettings = settings.autosave;
     console.debug(autosaveSettings);
@@ -19,16 +15,39 @@ Drupal.behaviors.autosave = {
     $('#' + autosaveSettings.formid).autosave({
       interval: autosaveSettings.period * 1000, // Time in ms
       url: autosaveSettings.url,
-      setup: function(e,o) {
+      setup: function (e, o) {
+        var ignoreLink, restoreLink;
+
         console.debug('jquery.autosave setup');
+
+        // If there is a saved form for this user, let him know so he can reload it
+        // if desired.
+        if (autosaveSettings.savedDate) {
+          showingRestoreCommand = true;
+
+          ignoreLink = $('<a>').attr('href', '#').attr('title', 'Ignore/Delete saved form').html(Drupal.t('Ignore')).click(function (e) {
+            Drupal.behaviors.autosave.hideMessage();
+          });
+          restoreLink = $('<a>').attr('href', '#').attr('title', 'Restore saved form').html(Drupal.t('Restore')).click(function (e) {
+            console.log('Do restore stuff here.');
+          });
+
+          Drupal.behaviors.autosave.displayMessage(Drupal.t('This form was autosaved on ' + autosaveSettings.savedDate), {
+            // Show the message for 30 seconds, or hide it when the user starts
+            // editing the form.
+            timeout: 30000,
+            extra: $('<span id="operations">').append(ignoreLink).append(' - ').append(restoreLink)
+          });
+        }
       },
-      save: function(e,o) {
+      save: function (e, o) {
         console.debug('jquery.autosave saving');
         Drupal.behaviors.autosave.displayMessage(Drupal.t('Form autosaved.'));
-        $('#autosave-status #status').html('Form autosaved.');
-        $('#autosave-status #operations').css('display', 'none').css('visibility', 'hidden');
-        $('#autosave-status').slideDown();
-        setTimeout(function() {$('#autosave-status').fadeOut('slow');}, 3000);
+      },
+      dirty: function (e, o) {
+        if (showingRestoreCommand) {
+          Drupal.behaviors.autosave.hideMessage();
+        }
       }
     });
 
@@ -155,12 +174,23 @@ Drupal.behaviors.autosave = {
     */
   },
 
-  displayMessage: function(message, timeout) {
-    timeout = timeout || 3000;
-    $('#autosave-status #status').html(message);
-    $('#autosave-status #operations').css('display', 'none').css('visibility', 'hidden');
+  hideMessage: function() {
+    $('#autosave-status').fadeOut('slow');
+  },
+
+  displayMessage: function(message, settings) {
+    settings = settings || {};
+    settings.timeout = settings.timeout || 3000;
+    settings.extra = settings.extra || '';
+    //settings = $.extend({}, {timeout: 3000, extra: ''}, settings);
+    var status = $('#autosave-status');
+    status.empty().append('<span id="status">' + message + '</span>');
+    if (settings.extra) {
+      status.append(settings.extra);
+    }
     $('#autosave-status').slideDown();
-    setTimeout(function() { $('#autosave-status').fadeOut('slow'); }, timeout);
+    console.debug(settings.timeout);
+    setTimeout(Drupal.behaviors.autosave.hideMessage, settings.timeout);
   }
 }
 
