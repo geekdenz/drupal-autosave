@@ -1,18 +1,36 @@
 var autosaved_form;
 
-(function ($) { 
+(function ($) {
 
-Drupal.behaviors.autosave = {   
-  
-  attach: function (context, settings) { 
+Drupal.behaviors.autosave = {
+
+  attach: function (context, settings) {
+    var autosaveSettings;
+
     $('body').append('<div id="autosave-status"><span id="status"></span><span id="operations"> \
     <span id="view"><a href="#">' + Drupal.t("View") + '</a></span> \
     <span id="ignore"><a href="#" title="' + Drupal.t("Ignore/Delete Saved Form") + '">' + Drupal.t("Ignore") + '</a></span> \
     <span id="keep"><a href="#" title="' + Drupal.t("Keep Saved Form - Revert to Saved") + '">' + Drupal.t("Keep") + '</a></span></span></div>');
-    
-    autosaved = Drupal.settings.autosave;   
+
+
+    autosaveSettings = settings.autosave;
+    console.debug(autosaveSettings);
+
+    $('#' + autosaveSettings.formid).autosave({
+      interval: autosaveSettings.period * 1000, // Time in ms
+      url: autosaveSettings.url,
+      setup: function(e,o) {
+        console.debug('jquery.autosave setup');
+      },
+      save: function(e,o) {
+        console.debug('jquery.autosave saving');
+      }
+    });
+
+    /*
+    autosaved = Drupal.settings.autosave;
     autosaved_form_id = autosaved.formid;
-    
+
     if (autosaved.serialized) {
       $('#autosave-status #keep').css('display', 'none').css('visibility', 'hidden');
       $('#autosave-status #view a').click(function() {
@@ -24,18 +42,18 @@ Drupal.behaviors.autosave = {
               Drupal.wysiwyg.instances[instance].setContent($('#' + instance).val());
             }
           }
-          
+
           //CKEditor support
           if (typeof(CKEDITOR) != 'undefined' ) {
             for (var instance in CKEDITOR.instances) {
               CKEDITOR.instances[instance].setData($('#' + instance).val());
             }
           }
-          
+
           $('#' + autosaved_form_id).focus();
           $(this).html('Reset');
           $('#autosave-status #keep').css('display', 'inline').css('visibility', 'visible');
-          $('#autosave-status #keep a').html('Keep'); 
+          $('#autosave-status #keep a').html('Keep');
         }
         else if ($(this).html() == 'Reset') {
           form = document.getElementById(autosaved_form_id);
@@ -47,10 +65,10 @@ Drupal.behaviors.autosave = {
               CKEDITOR.instances[instance].setData('');
             }
           }
-          
+
           $('#autosave-status #keep').css('display', 'none').css('visibility', 'hidden');
           $(this).html('View');
-        }    
+        }
         return false;
       });
       $('#autosave-status #ignore a').click(function() {
@@ -64,7 +82,7 @@ Drupal.behaviors.autosave = {
             CKEDITOR.instances[instance].setData('');
           }
         }
-        
+
         $('#autosave-status #operations').css('display', 'none').css('visibility', 'hidden');
         Drupal.behaviors.autosave.attachAutosave();
         return false;
@@ -83,9 +101,11 @@ Drupal.behaviors.autosave = {
     else {
       Drupal.behaviors.autosave.attachAutosave();
     }
+    */
   },
-  
+
   saveForm: function() {
+    /*
     autosaved = Drupal.settings.autosave;
     if (autosaved.wysiwyg && Drupal.wysiwyg) {
       // need to loop through any WYSIWYG editor fields and update the real (hidden) text fields before saving
@@ -96,22 +116,22 @@ Drupal.behaviors.autosave = {
         }
       }
     }
-  
+
     //CKEditor support
     if (typeof(CKEDITOR) != 'undefined') {
       for (var instance in CKEDITOR.instances) {
         CKEDITOR.instances[instance].updateElement();
       }
     }
-  
+
     var serialized = $('#' + autosaved.formid).formHash();
     $.ajax({
-      //url: settings.basePath + "autosave/handler",   
-      url: autosaved.url, 
+      //url: settings.basePath + "autosave/handler",
+      url: autosaved.url,
       type: "POST",
       dataType: "xml/html/script/json",
       data: ({
-        form_id: autosaved.formid, 
+        form_id: autosaved.formid,
         q: autosaved.q,
         serialized: serialized
       }),
@@ -120,22 +140,27 @@ Drupal.behaviors.autosave = {
         Drupal.behaviors.autosave.attachAutosave();
       }
     });
-  },   
+    */
+  },
 
   attachAutosave: function() {
+    /*
     autosaved = Drupal.settings.autosave;
     setTimeout('Drupal.behaviors.autosave.saveForm()', autosaved.period * 1000);
+    */
   },
 
   displaySaved: function() {
+    /*
     $('#autosave-status #status').html('Form autosaved.');
     $('#autosave-status #operations').css('display', 'none').css('visibility', 'hidden');
     $('#autosave-status').slideDown();
-    setTimeout("Drupal.behaviors.autosave.fadeout();", 3000);  
+    setTimeout("Drupal.behaviors.autosave.fadeout();", 3000);
+    */
   },
-  
-  fadeout: function() {   
-    $('#autosave-status').fadeOut('slow');
+
+  fadeout: function() {
+    //$('#autosave-status').fadeOut('slow');
   }
 }
 

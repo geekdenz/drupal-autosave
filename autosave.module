@@ -47,7 +47,7 @@ function autosave_menu() {
  */
 function autosave_admin_settings($form, &$form_state) {
   if (!file_exists(AUTOSAVE_PATH . '/jquery.field.js')) {
-    drupal_set_message(t('Unable to find the jQuery Field Plugin in !path. Please <a href="http://plugins.jquery.com/files/jquery.field.js_4.txt">download jquery.field.js</a> 
+    drupal_set_message(t('Unable to find the jQuery Field Plugin in !path. Please <a href="http://plugins.jquery.com/files/jquery.field.js_4.txt">download jquery.field.js</a>
       and place it into !path.', array('!path' => $path)), 'error');
   }
 
@@ -94,8 +94,8 @@ function autosave_form_alter(&$form, &$form_state, $form_id) {
 
     // check if this content_type has the autosave function enabled and make sure it's a node edit or add form
     if ((variable_get('autosave_' . $form['type']['#value'], 0))) {
+      drupal_add_js(AUTOSAVE_PATH . '/jquery.autosave.js');
       drupal_add_js(AUTOSAVE_PATH . '/autosave.js');
-      drupal_add_js(AUTOSAVE_PATH . '/jquery.field.js');
       drupal_add_css(AUTOSAVE_PATH . '/autosave.css');
 
       // if WYSIWYG module is enabled; lets let JS know this
@@ -105,9 +105,9 @@ function autosave_form_alter(&$form, &$form_state, $form_id) {
       else {
         $settings['autosave']['wysiwyg'] = 0;
       }
-      
-      $formid = str_replace("_", "-", $form_id);  
-      
+
+      $formid = str_replace("_", "-", $form_id);
+
       $settings['autosave']['formid'] = $formid;
       $settings['autosave']['url'] = url('autosave/handler');
       $settings['autosave']['period'] = variable_get('autosave_period', 10);
@@ -134,12 +134,12 @@ function autosave_form_alter(&$form, &$form_state, $form_id) {
 function autosave_save() {
   global $user;
 
-  $path = $_POST['q'];
+  $path = request_path();
   $form_id = $_POST['form_id'];
   // Not all variables need to be serialized.
   //    - for Drupal 6 version need to remove op and form_build_id
-  unset($_POST['q'], $_POST['op'], $_POST['form_build_id']);
-  $serialized = serialize($_POST['serialized']);
+  unset($_POST['op'], $_POST['form_build_id']);
+  $serialized = serialize($_POST);
 
   // check if node has just been saved - if it has then it's because AS ajax fired off as user was submitting
   // if it had just been submitted - no need to AS now
@@ -152,25 +152,23 @@ function autosave_save() {
   }
   else {
     // add case
-    $submitted->changed = db_query("SELECT created FROM {node} WHERE uid = :uid and type = :type ORDER BY created DESC LIMIT 1", array(':uid' => $user->uid, ':type' => str_replace("-", "_", $path_args[2])))->fetchField();
+    $submitted->changed = db_query("SELECT created FROM {node} WHERE uid = :uid and type = :type ORDER BY created DESC LIMIT 1", array(
+      ':uid' => $user->uid,
+      ':type' => str_replace("-", "_", $path_args[2]))
+    )->fetchField();
   }
 
   if (!$submitted || (REQUEST_TIME - $submitted->changed) > 10) {
     // Currently, each user can have only one autosave form at a particular path.
-    db_delete('autosaved_forms')
-      ->condition('form_id', $form_id)
-      ->condition('path', $path)
-      ->condition('uid', $user->uid)
-      ->execute();
-   
-  $id = db_insert('autosaved_forms')
+    db_merge('autosaved_forms')->key(array(
+      'form_id' => $form_id,
+      'path' => $path,
+      'uid' => $user->uid,
+    ))
     ->fields(array(
-        'form_id' => $form_id,
-        'path' => $path,
-        'uid' => $user->uid,
-        'timestamp' => REQUEST_TIME,
-        'serialized' => $serialized,
-      ))
+      'timestamp' => REQUEST_TIME,
+      'serialized' => $serialized,
+    ))
     ->execute();
   }
 
@@ -190,7 +188,7 @@ function autosave_save() {
  *   An array containing the serialized values of the autosaved form and the timestamp of when the form was autosaved.
  */
 function autosave_get_autosaved_form($form_id, $path, $uid) {
-  $result = db_query("SELECT form_id, serialized, timestamp FROM {autosaved_forms} WHERE form_id = :form_id AND path = :path AND uid = :uid", 
+  $result = db_query("SELECT form_id, serialized, timestamp FROM {autosaved_forms} WHERE form_id = :form_id AND path = :path AND uid = :uid",
     array(':form_id' => $form_id, ':path' => $path, ':uid' => $uid));
 
   $form = FALSE;
