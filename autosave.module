@@ -89,7 +89,6 @@ function autosave_form_node_type_form_alter(&$form, $form_state) {
 
 /**
  * Implements hook_form_alter().
-().
  */
 function autosave_form_alter(&$form, &$form_state, $form_id) {
   global $user;
@@ -151,12 +150,24 @@ function autosave_form_alter(&$form, &$form_state, $form_id) {
   }
 }
 
-
+/**
+ * Menu callback; AHAH return the form, repopulated with autosaved data.
+ *
+ * @global type $user
+ * @param string $formid
+ *   The ID of the form to reload.  This should be in Javascript format, vis,
+ *   using - instead of _.
+ * @param int $timestamp
+ *   The timestamp at which the autosaved form was saved.  This is used to
+ *   differentiate between different people mucking with the same form.
+ */
 function autosave_restore($formid, $timestamp) {
   global $user;
 
+  // Convert the form ID back to the PHP version.  I do hate that duality...
   $form_id = str_replace("-", "_", $formid);
 
+  // Fetch the saved form, if any.
   $record = db_query("SELECT form_id, serialized, path, timestamp FROM {autosaved_forms} WHERE form_id = :form_id AND timestamp = :timestamp AND uid = :uid", array(
     ':form_id' => $form_id,
     ':timestamp' => $timestamp,
@@ -164,22 +175,28 @@ function autosave_restore($formid, $timestamp) {
   ))->fetchObject();
 
   if ($record) {
-    $path = $record->path;
-    $menu_item = menu_get_item($path);
+    // For security reasons, we need to confirm that the user would have access
+    // to the page where the form lives in the first place.  If they don't, they
+    // should not be able to access its saved version.
+    // We also need to extract and reuse any additional page arguments that the
+    // original form may have.  That's especially true for, say, a node form,
+    // which needs the node object passed in as well.
+    $menu_item = menu_get_item($record->path);
     if ($menu_item['access']) {
       if ($menu_item['include_file']) {
         require_once DRUPAL_ROOT . '/' . $menu_item['include_file'];
       }
       $form_state['input'] = unserialize($record->serialized);
       $form_state['build_info']['args'] = $menu_item['page_arguments'];
-      $form_state['rebuild'] = TRUE;  // Disable the "this form has already been submitted" nonsense.
+      // Disable the "this form has already been submitted" nonsense by making
+      // Drupal think the form is being rebuilt as part of a multi-step form.
+      $form_state['rebuild'] = TRUE;
 
       $form = drupal_build_form($form_id, &$form_state);
       $rendered = drupal_render($form);
       print $rendered;
     }
   }
-
 
   exit();
 }

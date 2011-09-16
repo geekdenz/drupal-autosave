@@ -33,6 +33,9 @@ Drupal.behaviors.autosave = {
             console.log('Do restore stuff here.');
             var callbackPath = Drupal.settings.basePath + 'autosave/restore/' + autosaveSettings.formid + '/' + autosaveSettings.savedTimestamp;
 
+            // AHAH request the form from Drupal, which will be rebuilt.  After
+            // the load() completes, though, we need to reattach any Javascript
+            // for the form.
             $('#' + autosaveSettings.formid).load(callbackPath, null, function () {
               Drupal.attachBehaviors($('#' + autosaveSettings.formid));
             });
