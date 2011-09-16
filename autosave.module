@@ -56,9 +56,9 @@ function autosave_menu() {
  * Menu callback; return the autosave module settings form.
  */
 function autosave_admin_settings($form, &$form_state) {
-  if (!file_exists(AUTOSAVE_PATH . '/jquery.field.js')) {
-    drupal_set_message(t('Unable to find the jQuery Field Plugin in !path. Please <a href="http://plugins.jquery.com/files/jquery.field.js_4.txt">download jquery.field.js</a>
-      and place it into !path.', array('!path' => $path)), 'error');
+  if (!file_exists(AUTOSAVE_PATH . '/jquery.autosave.js')) {
+    drupal_set_message(t('Unable to find the jQuery Autosave Plugin in !path. Please <a href="http://plugins.jquery.com/files/jquery.autosave_0.zip">download jquery.autosave.js</a>
+      and place it into !path.', array('!path' => AUTOSAVE_PATH)), 'error');
   }
 
   $form['autosave_period'] = array(
@@ -291,12 +291,3 @@ function autosave_node_presave($node) {
       ->execute();
   }
 }
-
-/**
- * Implements hook_nodeapi().
-().
- *
- * Delete autosave table entry on successful submit (add or update) of node
- *
- */
-function autosave_nodeapi_OLD(&$node, $op, $a3 = NULL, $a4 = NULL) { }
