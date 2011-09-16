@@ -31,6 +31,12 @@ function autosave_menu() {
     'access callback' => TRUE,
     'type'            => MENU_CALLBACK,
   );
+  $items['autosave/restore'] = array(
+    'title'           => 'Autosave form restore',
+    'page callback'   => 'autosave_restore',
+    'access callback' => TRUE,
+    'type'            => MENU_CALLBACK,
+  );
 
   $items['admin/config/autosave'] = array(
     'title'            => 'Autosave',
@@ -120,6 +126,7 @@ function autosave_form_alter(&$form, &$form_state, $form_id) {
         ':path' => $path,
         ':uid' => $user->uid,
       ))->fetchField();
+      $settings['autosave']['savedTimestamp'] = $timestamp ? $timestamp : 0;
       $settings['autosave']['savedDate'] = $timestamp ? format_date($timestamp) : 0;
 
       // Make a note in the form of what the original path is, since when submitting
@@ -144,6 +151,38 @@ function autosave_form_alter(&$form, &$form_state, $form_id) {
   }
 }
 
+
+function autosave_restore($formid, $timestamp) {
+  global $user;
+
+  $form_id = str_replace("-", "_", $formid);
+
+  $record = db_query("SELECT form_id, serialized, path, timestamp FROM {autosaved_forms} WHERE form_id = :form_id AND timestamp = :timestamp AND uid = :uid", array(
+    ':form_id' => $form_id,
+    ':timestamp' => $timestamp,
+    ':uid' => $user->uid,
+  ))->fetchObject();
+
+  if ($record) {
+    $path = $record->path;
+    $menu_item = menu_get_item($path);
+    if ($menu_item['access']) {
+      if ($menu_item['include_file']) {
+        require_once DRUPAL_ROOT . '/' . $menu_item['include_file'];
+      }
+      $form_state['input'] = unserialize($record->serialized);
+      $form_state['build_info']['args'] = $menu_item['page_arguments'];
+      $form_state['rebuild'] = TRUE;  // Disable the "this form has already been submitted" nonsense.
+
+      $form = drupal_build_form($form_id, &$form_state);
+      $rendered = drupal_render($form);
+      print $rendered;
+    }
+  }
+
+
+  exit();
+}
 
 /**
  * Menu callback; autosaves the node.

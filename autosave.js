@@ -22,14 +22,25 @@ Drupal.behaviors.autosave = {
 
         // If there is a saved form for this user, let him know so he can reload it
         // if desired.
-        if (autosaveSettings.savedDate) {
+        if (autosaveSettings.savedTimestamp) {
           showingRestoreCommand = true;
 
           ignoreLink = $('<a>').attr('href', '#').attr('title', 'Ignore/Delete saved form').html(Drupal.t('Ignore')).click(function (e) {
             Drupal.behaviors.autosave.hideMessage();
+            return false;
           });
           restoreLink = $('<a>').attr('href', '#').attr('title', 'Restore saved form').html(Drupal.t('Restore')).click(function (e) {
             console.log('Do restore stuff here.');
+            var callbackPath = Drupal.settings.basePath + 'autosave/restore/' + autosaveSettings.formid + '/' + autosaveSettings.savedTimestamp;
+
+            $('#' + autosaveSettings.formid).load(callbackPath, null, function () {
+              Drupal.attachBehaviors($('#' + autosaveSettings.formid));
+            });
+
+            return false;
+
+            // We should be able to just AHAH return drupal_render(drupal_build_form($form_id, array('input' => $our_saved_post)));
+            // Try this tomorrow. :-)
           });
 
           Drupal.behaviors.autosave.displayMessage(Drupal.t('This form was autosaved on ' + autosaveSettings.savedDate), {
