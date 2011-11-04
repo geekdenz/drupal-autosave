@@ -106,14 +106,6 @@ function autosave_form_alter(&$form, &$form_state, $form_id) {
       drupal_add_js(AUTOSAVE_PATH . '/autosave.js');
       drupal_add_css(AUTOSAVE_PATH . '/autosave.css');
 
-      // if WYSIWYG module is enabled; lets let JS know this
-      if (module_exists('wysiwyg')) {
-        $settings['autosave']['wysiwyg'] = 1;
-      }
-      else {
-        $settings['autosave']['wysiwyg'] = 0;
-      }
-
       $formid = str_replace("_", "-", $form_id);
 
       $settings['autosave']['formid'] = $formid;
@@ -139,16 +131,6 @@ function autosave_form_alter(&$form, &$form_state, $form_id) {
         '#value' => $path,
       );
 
-      /*
-      // If an autosaved version of the form exists, make it available via javascript.
-      if ($autosaved_form = autosave_get_autosaved_form($formid, $path, $user->uid)) {
-        //$autosaved_form_id = $form['type']['#value'] ? $form['type']['#value'] .'_node_form' : 'node_form';
-        $settings['autosave'] = array_merge($settings['autosave'], array(
-          'serialized' => unserialize($autosaved_form['serialized']),
-          'saved_date' => format_date($autosaved_form['timestamp'], 'medium'),
-        ));
-      }
-      */
       drupal_add_js($settings, array('type' => 'setting', 'scope' => JS_DEFAULT));
     }
   }
