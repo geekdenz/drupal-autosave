@@ -25,13 +25,13 @@ Drupal.behaviors.autosave = {
         if (autosaveSettings.savedTimestamp) {
           showingRestoreCommand = true;
 
-          ignoreLink = $('<a>').attr('href', '#').attr('title', 'Ignore/Delete saved form').html(Drupal.t('Ignore')).click(function (e) {
+          ignoreLink = $('<a>').attr('href', '#').attr('title', Drupal.t('Ignore/Delete saved form')).html(Drupal.t('Ignore')).click(function (e) {
             Drupal.behaviors.autosave.hideMessage();
             return false;
           });
 
           callbackPath = Drupal.settings.basePath + 'autosave/restore/' + autosaveSettings.formid + '/' + autosaveSettings.savedTimestamp;
-          restoreLink = $('<a>').attr('href', callbackPath).addClass('use-ajax').attr('title', 'Restore saved form').html(Drupal.t('Restore')).click(function (e) {
+          restoreLink = $('<a>').attr('href', callbackPath).addClass('use-ajax').attr('title', Drupal.t('Restore saved form')).html(Drupal.t('Restore')).click(function (e) {
             Drupal.behaviors.autosave.hideMessage();
           });
 
