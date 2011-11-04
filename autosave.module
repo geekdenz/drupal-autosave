@@ -287,7 +287,7 @@ function autosave_get_autosaved_form($form_id, $path, $uid) {
 function autosave_node_presave($node) {
   if (TRUE) {
     // we remove ALL edits for that page (not just the users) to avoid:
-    //  - user1 asaves but doesnt submit
+    //  - user1 saves but doesn't submit
     //  - user2 edits same node and submits
     //  - user1 comes back to edit -> user1 SHOULD lose edits since user2 has precedence
     db_delete('autosaved_forms')
