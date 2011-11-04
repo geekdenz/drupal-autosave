@@ -39,6 +39,7 @@ function autosave_menu() {
     'access callback' => 'autosave_restore_access',
     'access arguments' => array(2, 3),
     'type'            => MENU_CALLBACK,
+    'delivery callback' => 'ajax_deliver',
   );
 
   $items['admin/config/autosave'] = array(
@@ -101,6 +102,7 @@ function autosave_form_alter(&$form, &$form_state, $form_id) {
 
     // check if this content_type has the autosave function enabled and make sure it's a node edit or add form
     if ((variable_get('autosave_' . $form['type']['#value'], 0))) {
+      drupal_add_library('system', 'drupal.ajax');
       drupal_add_js(AUTOSAVE_PATH . '/jquery.autosave.js');
       drupal_add_js(AUTOSAVE_PATH . '/autosave.js');
       drupal_add_css(AUTOSAVE_PATH . '/autosave.css');
@@ -176,12 +178,14 @@ function autosave_restore($formid, $timestamp) {
       // tell it to actually submit back to where it would have submitted to
       // originally.
       $form['#action'] = url($record->path);
-      $rendered = drupal_render($form);
-      print $rendered;
+
+      $commands[] = ajax_command_html('#' . $formid, drupal_render($form));
+
+      return array('#type' => 'ajax', '#commands' => $commands);
+
+      return $commands;
     }
   }
-
-  exit();
 }
 
 /**
@@ -217,7 +221,7 @@ function autosave_save_access() {
  *   True if the user should have restore access to this form, false otherwise.
  */
 function autosave_restore_access($formid, $timestamp) {
-  $record = autosave_get_autosaved_form($form_id, $timestamp, $GLOBALS['user']->uid);
+  $record = autosave_get_autosaved_form($formid, $timestamp, $GLOBALS['user']->uid);
 
   $menu_item = menu_get_item($record->path);
   return $menu_item['access'];
@@ -292,7 +296,7 @@ function autosave_get_autosaved_form($form_id, $timestamp, $uid) {
   if (empty($forms[$form_id][$timestamp])) {
     // Fetch the saved form, if any.
     $forms[$form_id][$timestamp] = db_query("SELECT form_id, serialized, path, timestamp FROM {autosaved_forms} WHERE form_id = :form_id AND timestamp = :timestamp AND uid = :uid", array(
-      ':form_id' => $form_id,
+      ':form_id' => str_replace('-', '_', $form_id),
       ':timestamp' => $timestamp,
       ':uid' => $uid,
     ))->fetchObject();

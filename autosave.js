@@ -12,11 +12,11 @@ Drupal.behaviors.autosave = {
 
     autosaveSettings = settings.autosave;
 
-    $('#' + autosaveSettings.formid).autosave({
+    $('#' + autosaveSettings.formid).not('.autosave-processed').addClass('autosave-processed').autosave({
       interval: autosaveSettings.period * 1000, // Time in ms
       url: autosaveSettings.url,
       setup: function (e, o) {
-        var ignoreLink, restoreLink;
+        var ignoreLink, restoreLink, callbackPath;
 
         // If there is a saved form for this user, let him know so he can reload it
         // if desired.
@@ -27,19 +27,10 @@ Drupal.behaviors.autosave = {
             Drupal.behaviors.autosave.hideMessage();
             return false;
           });
-          restoreLink = $('<a>').attr('href', '#').attr('title', 'Restore saved form').html(Drupal.t('Restore')).click(function (e) {
-            var callbackPath = Drupal.settings.basePath + 'autosave/restore/' + autosaveSettings.formid + '/' + autosaveSettings.savedTimestamp;
 
-            // AHAH request the form from Drupal, which will be rebuilt.  After
-            // the load() completes, though, we need to reattach any Javascript
-            // for the form.
-            $('#' + autosaveSettings.formid).load(callbackPath, null, function () {
-              Drupal.attachBehaviors($('#' + autosaveSettings.formid));
-              // I am unclear why this seems to have no effect.
-              Drupal.behaviors.autosave.hideMessage();
-            });
-
-            return false;
+          callbackPath = Drupal.settings.basePath + 'autosave/restore/' + autosaveSettings.formid + '/' + autosaveSettings.savedTimestamp;
+          restoreLink = $('<a>').attr('href', callbackPath).addClass('use-ajax').attr('title', 'Restore saved form').html(Drupal.t('Restore')).click(function (e) {
+            Drupal.behaviors.autosave.hideMessage();
           });
 
           Drupal.behaviors.autosave.displayMessage(Drupal.t('This form was autosaved on ' + autosaveSettings.savedDate), {
@@ -90,6 +81,8 @@ Drupal.behaviors.autosave = {
     if (settings.extra) {
       status.append(settings.extra);
     }
+    Drupal.attachBehaviors(status);
+
     $('#autosave-status').slideDown();
     setTimeout(Drupal.behaviors.autosave.hideMessage, settings.timeout);
   }
