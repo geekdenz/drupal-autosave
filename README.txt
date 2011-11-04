@@ -1,9 +1,7 @@
-NOTE - start of D7 version - NOT YET FUNCTIONAL
-
 
 DESCRIPTION
 ===========
-The Autosave module automatically saves a node after a period of time. Content types that can be autosaved as well as the 
+The Autosave module automatically saves a node after a period of time. Content types that can be autosaved as well as the
 period of time a node is autosaved, is configurable.
 
 Autosaved nodes are are saved as a snap shot of the form.
@@ -13,9 +11,7 @@ NOTE: this version of autosave only works for single form (of selected node type
 
 DEPENDENCIES
 ============
-Includes the jQuery Form Plugin which was downloaded from here: http://dev.jquery.com/browser/trunk/plugins/form/jquery.form.js?format=txt
-
-NOTE: the plugin has been modified to work with Drupal field names
+None
 
 INSTALLATION
 ============
@@ -28,10 +24,11 @@ AUTHOR
 ======
 original concept by Edmund Kwok (edmund.kwok [at] insyghtful.com)
 Drupal 6 version and current maintainer: Peter Lindstrom sponsored by About.com
+Drupal 7 version and current maintainer: Larry Garfield sponsored by American Public Media.
 
 CHANGE LOG
 ==========
-- 7.x-1.x - working dev version for D7 [not yet functional]
+- 7.x-2.x - Working dev version; can handle TinyMCE WYSIWYG areas only.
 - 6.x-2.0 version is a complete re-write to remove dependencies on TinyMCE.
 - this version is now tied to the WYSIWYG module and currently is known to work with FCK, CK and TinyMCE 3.0 editors but requires
 the 6.x-2.x-dev version of WYSIWYG with this patch: http://drupal.org/node/614146#comment-2193764; this patch should be commited soon and will
