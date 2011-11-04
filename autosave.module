@@ -38,7 +38,8 @@ function autosave_menu() {
   $items['autosave/restore'] = array(
     'title'           => 'Autosave form restore',
     'page callback'   => 'autosave_restore',
-    'access callback' => TRUE,
+    'access callback' => 'autosave_restore_access',
+    'access arguments' => array(2, 3),
     'type'            => MENU_CALLBACK,
   );
 
@@ -154,17 +155,10 @@ function autosave_restore($formid, $timestamp) {
   $form_id = str_replace("-", "_", $formid);
 
   // Fetch the saved form, if any.
-  $record = db_query("SELECT form_id, serialized, path, timestamp FROM {autosaved_forms} WHERE form_id = :form_id AND timestamp = :timestamp AND uid = :uid", array(
-    ':form_id' => $form_id,
-    ':timestamp' => $timestamp,
-    ':uid' => $user->uid,
-  ))->fetchObject();
+  $record = autosave_get_autosaved_form($form_id, $timestamp, $GLOBALS['user']->uid);
 
   if ($record) {
-    // For security reasons, we need to confirm that the user would have access
-    // to the page where the form lives in the first place.  If they don't, they
-    // should not be able to access its saved version.
-    // We also need to extract and reuse any additional page arguments that the
+    // We need to extract and reuse any additional page arguments that the
     // original form may have.  That's especially true for, say, a node form,
     // which needs the node object passed in as well.
     $menu_item = menu_get_item($record->path);
@@ -190,6 +184,30 @@ function autosave_restore($formid, $timestamp) {
   }
 
   exit();
+}
+
+/**
+ * Access callback for the form restore menu callback.
+ *
+ * For security reasons, we need to confirm that the user would have access
+ * to the page where the form lives in the first place.  If they don't, they
+ * should not be able to access its saved version.
+ *
+ * @param string $formid
+ *   The ID of the form to reload.  This should be in Javascript format, vis,
+ *   using - instead of _.
+ * @param int $timestamp
+ *   The timestamp at which the autosaved form was saved.  This is used to
+ *   differentiate between different people mucking with the same form.
+ *
+ * @return boolean
+ *   True if the user should have restore access to this form, false otherwise.
+ */
+function autosave_restore_access($formid, $timestamp) {
+  $record = autosave_get_autosaved_form($form_id, $timestamp, $GLOBALS['user']->uid);
+
+  $menu_item = menu_get_item($record->path);
+  return $menu_item['access'];
 }
 
 /**
@@ -244,23 +262,30 @@ function autosave_save() {
  *
  * @param string $form_id
  *   The form_id of the form.
- * @param string $path
- *   The the internal Drupal path where the form is located
- * @param string $uid
- *   Drupal UID of the user
+ * @param string $formid
+ *   The ID of the form to reload.  This should be in Javascript format, vis,
+ *   using - instead of _.
+ * @param int $timestamp
+ *   The timestamp at which the autosaved form was saved.  This is used to
+ *   differentiate between different people mucking with the same form.
  * @return
  *   An array containing the serialized values of the autosaved form and the timestamp of when the form was autosaved.
  */
-function autosave_get_autosaved_form($form_id, $path, $uid) {
-  $result = db_query("SELECT form_id, serialized, timestamp FROM {autosaved_forms} WHERE form_id = :form_id AND path = :path AND uid = :uid",
-    array(':form_id' => $form_id, ':path' => $path, ':uid' => $uid));
+function autosave_get_autosaved_form($form_id, $timestamp, $uid) {
 
-  $form = FALSE;
-  foreach ($result as $data) {
-    $form['serialized'] = $data->serialized;
-    $form['timestamp'] = $data->timestamp;
+  static $forms = array();
+
+  if (empty($forms[$form_id][$timestamp])) {
+    // Fetch the saved form, if any.
+    $forms[$form_id][$timestamp] = db_query("SELECT form_id, serialized, path, timestamp FROM {autosaved_forms} WHERE form_id = :form_id AND timestamp = :timestamp AND uid = :uid", array(
+      ':form_id' => $form_id,
+      ':timestamp' => $timestamp,
+      ':uid' => $uid,
+    ))->fetchObject();
   }
-  return $form;
+
+
+  return $forms[$form_id][$timestamp];
 }
 
 /**
