@@ -55,6 +55,21 @@ Drupal.behaviors.autosave = {
             extra: $('<span id="operations">').append(ignoreLink).append(' - ').append(restoreLink)
           });
         }
+
+        // Wire up TinyMCE to autosave.
+        if (tinymce) {
+          setInterval(function() {
+            // Save text data from the tinymce area back to the original form element.
+            // Once it's in the original form element, autosave will notice it
+            // and do what it needs to do.
+            // Note: There seems to be a bug where after a form is restored,
+            // everything works fine but tinyMCE keeps reporting an undefined
+            // error internally.  As its code is compressed I have absolutely no
+            // way to debug this.  If you can figure it out, please file a patch.
+            tinymce.triggerSave();
+          }, autosaveSettings.period * 1000);
+        }
+
       },
       save: function (e, o) {
         console.debug('jquery.autosave saving');
