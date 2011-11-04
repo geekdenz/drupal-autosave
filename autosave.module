@@ -31,8 +31,6 @@ function autosave_menu() {
     'access callback' => 'autosave_save_access',
     'type'            => MENU_CALLBACK,
   );
-  // @TODO: Figure out how to use a delivery callback here so that we do not
-  // get the devel footer on the AHAH response.
   $items['autosave/restore'] = array(
     'title'           => 'Autosave form restore',
     'page callback'   => 'autosave_restore',
