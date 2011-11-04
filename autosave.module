@@ -28,7 +28,7 @@ function autosave_menu() {
   $items['autosave/handler'] = array(
     'title'           => 'Autosave save',
     'page callback'   => 'autosave_save',
-    'access callback' => TRUE,
+    'access callback' => 'autosave_save_access',
     'type'            => MENU_CALLBACK,
   );
   // @TODO: Refactor autosave_restore so that we can move to a proper access
@@ -187,6 +187,21 @@ function autosave_restore($formid, $timestamp) {
 }
 
 /**
+ * Access callback for the form save menu callback.
+ *
+ * Because the form data is not available to us, the only way we can access
+ * the path is by checking $_POST directly.  Sux.
+ *
+ * @return boolean
+ *   True if this user should have access to save this form, false otherwise.
+ */
+function autosave_save_access() {
+  $path = $_POST['autosave_form_path'];
+  $menu_item = menu_get_item($path);
+  return $menu_item['access'];
+}
+
+/**
  * Access callback for the form restore menu callback.
  *
  * For security reasons, we need to confirm that the user would have access
@@ -256,6 +271,7 @@ function autosave_save() {
 
   exit();
 }
+
 
 /**
  * Get the autosaved form at a particular path for a user.
