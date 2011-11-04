@@ -7,18 +7,16 @@ Drupal.behaviors.autosave = {
   attach: function (context, settings) {
     var autosaveSettings;
 
+    // Add a div for us to put messages in.
     $('body').append('<div id="autosave-status"><span id="status"></span></div>');
 
     autosaveSettings = settings.autosave;
-    console.debug(autosaveSettings);
 
     $('#' + autosaveSettings.formid).autosave({
       interval: autosaveSettings.period * 1000, // Time in ms
       url: autosaveSettings.url,
       setup: function (e, o) {
         var ignoreLink, restoreLink;
-
-        console.debug('jquery.autosave setup');
 
         // If there is a saved form for this user, let him know so he can reload it
         // if desired.
@@ -30,7 +28,6 @@ Drupal.behaviors.autosave = {
             return false;
           });
           restoreLink = $('<a>').attr('href', '#').attr('title', 'Restore saved form').html(Drupal.t('Restore')).click(function (e) {
-            console.log('Do restore stuff here.');
             var callbackPath = Drupal.settings.basePath + 'autosave/restore/' + autosaveSettings.formid + '/' + autosaveSettings.savedTimestamp;
 
             // AHAH request the form from Drupal, which will be rebuilt.  After
@@ -43,9 +40,6 @@ Drupal.behaviors.autosave = {
             });
 
             return false;
-
-            // We should be able to just AHAH return drupal_render(drupal_build_form($form_id, array('input' => $our_saved_post)));
-            // Try this tomorrow. :-)
           });
 
           Drupal.behaviors.autosave.displayMessage(Drupal.t('This form was autosaved on ' + autosaveSettings.savedDate), {
@@ -72,7 +66,6 @@ Drupal.behaviors.autosave = {
 
       },
       save: function (e, o) {
-        console.debug('jquery.autosave saving');
         Drupal.behaviors.autosave.displayMessage(Drupal.t('Form autosaved.'));
       },
       dirty: function (e, o) {
@@ -220,7 +213,6 @@ Drupal.behaviors.autosave = {
       status.append(settings.extra);
     }
     $('#autosave-status').slideDown();
-    console.debug(settings.timeout);
     setTimeout(Drupal.behaviors.autosave.hideMessage, settings.timeout);
   }
 }
