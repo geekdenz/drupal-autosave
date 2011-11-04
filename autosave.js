@@ -7,8 +7,10 @@ Drupal.behaviors.autosave = {
   attach: function (context, settings) {
     var autosaveSettings;
 
-    // Add a div for us to put messages in.
-    $('body').append('<div id="autosave-status"><span id="status"></span></div>');
+    if ($('#autosave-status').size() == 0) {
+     // Add a div for us to put messages in.
+      $('body').append('<div id="autosave-status"><span id="status"></span></div>');
+    }
 
     autosaveSettings = settings.autosave;
 
