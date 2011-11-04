@@ -162,29 +162,27 @@ function autosave_restore($formid, $timestamp) {
     // original form may have.  That's especially true for, say, a node form,
     // which needs the node object passed in as well.
     $menu_item = menu_get_item($record->path);
-    if ($menu_item['access']) {
-      if ($menu_item['include_file']) {
-        require_once DRUPAL_ROOT . '/' . $menu_item['include_file'];
-      }
-      $form_state['input'] = unserialize($record->serialized);
-      $form_state['build_info']['args'] = $menu_item['page_arguments'];
-      // Disable the "this form has already been submitted" nonsense by making
-      // Drupal think the form is being rebuilt as part of a multi-step form.
-      $form_state['rebuild'] = TRUE;
-
-      $form = drupal_build_form($form_id, &$form_state);
-
-      // Because the form will by default submit back to this URL, we need to
-      // tell it to actually submit back to where it would have submitted to
-      // originally.
-      $form['#action'] = url($record->path);
-
-      $commands[] = ajax_command_html('#' . $formid, drupal_render($form));
-
-      return array('#type' => 'ajax', '#commands' => $commands);
-
-      return $commands;
+    if ($menu_item['include_file']) {
+      require_once DRUPAL_ROOT . '/' . $menu_item['include_file'];
     }
+    $form_state['input'] = unserialize($record->serialized);
+    $form_state['build_info']['args'] = $menu_item['page_arguments'];
+    // Disable the "this form has already been submitted" nonsense by making
+    // Drupal think the form is being rebuilt as part of a multi-step form.
+    $form_state['rebuild'] = TRUE;
+
+    $form = drupal_build_form($form_id, &$form_state);
+
+    // Because the form will by default submit back to this URL, we need to
+    // tell it to actually submit back to where it would have submitted to
+    // originally.
+    $form['#action'] = url($record->path);
+
+    $commands[] = ajax_command_html('#' . $formid, drupal_render($form));
+
+    return array('#type' => 'ajax', '#commands' => $commands);
+
+    return $commands;
   }
 }
 
