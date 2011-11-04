@@ -38,6 +38,8 @@ Drupal.behaviors.autosave = {
             // for the form.
             $('#' + autosaveSettings.formid).load(callbackPath, null, function () {
               Drupal.attachBehaviors($('#' + autosaveSettings.formid));
+              // I am unclear why this seems to have no effect.
+              Drupal.behaviors.autosave.hideMessage();
             });
 
             return false;
