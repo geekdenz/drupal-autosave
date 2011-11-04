@@ -1,4 +1,3 @@
-; $Id: autosave.info,v 1.6 2009/11/04 06:23:09 ptalindstrom Exp $
 name = Autosave
 description = Saves node edits in the background in case browser dies while editing.
 
