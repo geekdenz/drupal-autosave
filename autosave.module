@@ -197,6 +197,11 @@ function autosave_restore($formid, $timestamp) {
       $form_state['rebuild'] = TRUE;
 
       $form = drupal_build_form($form_id, &$form_state);
+
+      // Because the form will by default submit back to this URL, we need to
+      // tell it to actually submit back to where it would have submitted to
+      // originally.
+      $form['#action'] = url($record->path);
       $rendered = drupal_render($form);
       print $rendered;
     }
