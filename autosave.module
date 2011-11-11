@@ -97,8 +97,8 @@ function autosave_form_alter(&$form, &$form_state, $form_id) {
 
   if (stristr($form_id, '_node_form') && arg(0) != 'admin') {
 
-    // check if this content_type has the autosave function enabled and make sure it's a node edit or add form
-    if ((variable_get('autosave_' . $form['type']['#value'], 0))) {
+    // Check if this content_type has the autosave function enabled and make sure it's a node edit or add form.
+    if ((variable_get('autosave_' . $form['type']['#value'], 0)) && empty($_POST['autosave_form_path'])) {
       drupal_add_library('system', 'drupal.ajax');
       drupal_add_js(AUTOSAVE_PATH . '/jquery.autosave.js');
       drupal_add_js(AUTOSAVE_PATH . '/autosave.js');
