@@ -223,8 +223,10 @@ function autosave_save_access() {
 function autosave_restore_access($formid, $timestamp) {
   $record = autosave_get_autosaved_form($formid, $timestamp, $GLOBALS['user']->uid);
 
-  $menu_item = menu_get_item($record->path);
-  return $menu_item['access'];
+  if (isset($record->path)) {
+    $menu_item = menu_get_item($record->path);
+    return isset($menu_item['access']) ? $menu_item['access'] : FALSE;
+  }
 }
 
 /**
