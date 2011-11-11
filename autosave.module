@@ -174,8 +174,13 @@ function autosave_restore($formid, $timestamp) {
     // tell it to actually submit back to where it would have submitted to
     // originally.
     $form['#action'] = url($record->path);
+    $form['autosave_form_path']['#value'] = $form['#action'];
 
-    $commands[] = ajax_command_html('#' . $formid, drupal_render($form));
+    // We don't want to change the HTML ID of the form, because we're replacing
+    // it in-place.  Drupal wants to give this a suffix for some reason.
+    $form['#id'] = $formid;
+
+    $commands[] = ajax_command_replace('#' . $formid, drupal_render($form));
 
     return array('#type' => 'ajax', '#commands' => $commands);
 
@@ -193,9 +198,9 @@ function autosave_restore($formid, $timestamp) {
  *   True if this user should have access to save this form, false otherwise.
  */
 function autosave_save_access() {
-  $path = $_POST['autosave_form_path'];
+  $path = trim($_POST['autosave_form_path'], '/');
   $menu_item = menu_get_item($path);
-  return $menu_item['access'];
+  return isset($menu_item['access']) ? $menu_item['access'] : FALSE;
 }
 
 /**
