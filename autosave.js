@@ -53,7 +53,14 @@ Drupal.behaviors.autosave = {
             // everything works fine but tinyMCE keeps reporting an undefined
             // error internally.  As its code is compressed I have absolutely no
             // way to debug this.  If you can figure it out, please file a patch.
-            tinymce.triggerSave();
+
+            var triggers = Drupal.settings.wysiwyg.triggers;
+            var id;
+            var field;
+            for (id in triggers) {
+              field = triggers[id].field;
+              $('#' + field).val(tinyMCE.get(field).getContent());
+            }
           }, autosaveSettings.period * 1000);
         }
 
