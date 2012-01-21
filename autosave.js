@@ -44,7 +44,7 @@ Drupal.behaviors.autosave = {
         }
 
         // Wire up TinyMCE to autosave.
-        if (tinymce) {
+        if (typeof(tinymce) !== 'undefined') {
           setInterval(function() {
             // Save text data from the tinymce area back to the original form element.
             // Once it's in the original form element, autosave will notice it
@@ -59,7 +59,7 @@ Drupal.behaviors.autosave = {
             var field;
             for (id in triggers) {
               field = triggers[id].field;
-              $('#' + field).val(tinyMCE.get(field).getContent());
+              $('#' + field).val(tinymce.get(field).getContent());
             }
           }, autosaveSettings.period * 1000);
         }
