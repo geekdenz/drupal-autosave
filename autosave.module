@@ -168,7 +168,7 @@ function autosave_restore($formid, $timestamp) {
     // Drupal think the form is being rebuilt as part of a multi-step form.
     $form_state['rebuild'] = TRUE;
 
-    $form = drupal_build_form($form_id, &$form_state);
+    $form = drupal_build_form($form_id, $form_state);
 
     // Because the form will by default submit back to this URL, we need to
     // tell it to actually submit back to where it would have submitted to
