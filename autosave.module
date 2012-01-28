@@ -34,7 +34,7 @@ function autosave_menu() {
     'title'           => 'Autosave form restore',
     'page callback'   => 'autosave_restore',
     'access callback' => 'autosave_restore_access',
-    'access arguments' => array(2, 3),
+    'access arguments' => array(2, 3, 4),
     'type'            => MENU_CALLBACK,
     'delivery callback' => 'ajax_deliver',
   );
@@ -122,6 +122,8 @@ function autosave_form_alter(&$form, &$form_state, $form_id) {
       $settings['autosave']['savedTimestamp'] = $timestamp ? $timestamp : 0;
       $settings['autosave']['savedDate'] = $timestamp ? format_date($timestamp) : 0;
 
+      $settings['autosave']['formToken'] = drupal_get_token($form_id);
+
       // Make a note in the form of what the original path is, since when submitting
       // the autosaved form to our own callback it will not be the same.
       $form['autosave_form_path'] = array(
@@ -168,6 +170,8 @@ function autosave_restore($formid, $timestamp) {
     // Drupal think the form is being rebuilt as part of a multi-step form.
     $form_state['rebuild'] = TRUE;
 
+    // When restoring we will need to know the form token so that the user can
+    // be validated.
     $form = drupal_build_form($form_id, $form_state);
 
     // Because the form will by default submit back to this URL, we need to
@@ -191,16 +195,25 @@ function autosave_restore($formid, $timestamp) {
 /**
  * Access callback for the form save menu callback.
  *
+ *
+ * For security reasons, we need to confirm that the user would have access
+ * to the page where the form lives in the first place.  If they don't, they
+ * should not be able to access its saved version.  We also check that the
+ * form's token is correct to avoid CSRF attacks.
+ *
  * Because the form data is not available to us, the only way we can access
  * the path is by checking $_POST directly.  Sux.
  *
- * @return boolean
+ *  @return boolean
  *   True if this user should have access to save this form, false otherwise.
  */
 function autosave_save_access() {
   $path = trim($_POST['autosave_form_path'], '/');
   $menu_item = menu_get_item($path);
-  return isset($menu_item['access']) ? $menu_item['access'] : FALSE;
+
+  $token = isset($_POST['form_token'], $_POST['form_id']) && drupal_valid_token($_POST['form_token'], $_POST['form_id']);
+  $menu = isset($menu_item['access']) ? $menu_item['access'] : FALSE;
+  return $token && $menu;
 }
 
 /**
@@ -208,7 +221,8 @@ function autosave_save_access() {
  *
  * For security reasons, we need to confirm that the user would have access
  * to the page where the form lives in the first place.  If they don't, they
- * should not be able to access its saved version.
+ * should not be able to access its saved version.  We also check that the
+ * form's token is correct to avoid CSRF attacks.
  *
  * @param string $formid
  *   The ID of the form to reload.  This should be in Javascript format, vis,
@@ -220,12 +234,15 @@ function autosave_save_access() {
  * @return boolean
  *   True if the user should have restore access to this form, false otherwise.
  */
-function autosave_restore_access($formid, $timestamp) {
+function autosave_restore_access($formid, $timestamp, $form_token) {
   $record = autosave_get_autosaved_form($formid, $timestamp, $GLOBALS['user']->uid);
 
   if (isset($record->path)) {
     $menu_item = menu_get_item($record->path);
-    return isset($menu_item['access']) ? $menu_item['access'] : FALSE;
+
+    $token = drupal_valid_token($form_token, str_replace('-', '_', $formid));
+    $menu = isset($menu_item['access']) ? $menu_item['access'] : FALSE;
+    return $token && $menu;
   }
 }
 
