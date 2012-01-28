@@ -230,6 +230,8 @@ function autosave_save_access() {
  * @param int $timestamp
  *   The timestamp at which the autosaved form was saved.  This is used to
  *   differentiate between different people mucking with the same form.
+ * @param string $form_token
+ *   The form token used for CSRF prevention.
  *
  * @return boolean
  *   True if the user should have restore access to this form, false otherwise.
