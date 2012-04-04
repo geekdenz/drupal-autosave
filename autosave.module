@@ -163,6 +163,16 @@ function autosave_restore($formid, $timestamp) {
       require_once DRUPAL_ROOT . '/' . $menu_item['include_file'];
     }
     $form_state['input'] = unserialize($record->serialized);
+
+    // this prevents bug http://drupal.org/node/1402902#comment-5727904
+    // applies to Drupal 7.12 stable
+    $type = $menu_item['page_arguments'][0]; // gets the node type, i.e. the content type from the page arguments
+    $node = (object) array('type'=>$type);   // creates a raw node object, giving it the content type that is needed (in the next line)
+    node_object_prepare($node);              // uses drupals functions to make a proper node object
+    $menu_item['page_arguments'][0] = $node; // we need a proper node object later in the drupal_build_form() function
+    // and even later in the node_form function which is a hook in the node module which gets 
+    // ultimately called by drupal_build_form in drupal 7
+
     $form_state['build_info']['args'] = $menu_item['page_arguments'];
     // Disable the "this form has already been submitted" nonsense by making
     // Drupal think the form is being rebuilt as part of a multi-step form.
