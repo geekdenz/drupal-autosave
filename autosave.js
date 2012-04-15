@@ -63,6 +63,13 @@ Drupal.behaviors.autosave = {
             }
           }, autosaveSettings.period * 1000);
         }
+        if (typeof(CKEDITOR) !== 'undefined') {
+          setInterval(function() {
+            $.each(CKEDITOR.instances, function(k,ck) { // foreach CKEDITOR instance
+              ck.updateElement(); // update the textarea element so that it is autosaved
+            });
+          }, autosaveSettings.period * 1000);
+        }
 
       },
       save: function (e, o) {
